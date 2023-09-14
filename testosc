@@ -1,0 +1,260 @@
+#!/bin/sh
+#для подсветки синтаксиса
+#К=16 - 1В/клетке 1,6 =10В/клетке 0,16 -100в/Клетке
+{
+#Напряжения собственных нужд - у всех схем A/B/C=21/22/23
+#usabi
+#(ia(21)-ia(22))*0.08#PhaseAB 200V/div
+#usbci
+#(ia(22)-ia(23))*0.08#PhaseBC 200V/div
+#uscai
+#(ia(23)-ia(21))*0.08#PhaseCA 200V/div
+#usai
+#ia(21)*0.16#PhaseA 100V/div
+#usbi
+#ia(22)*0.16#PhaseB 100V/div
+#usci
+#ia(23)*0.16#PhaseC 100V/div
+#напряжение питания прямой звезды (Х) и группы выпрямителей фазы А для всех схем A/B/C = 0/1/2
+#uxaabi
+#(ia(0)-ia(1))*0.08#PhaseAB 200V/div
+#uxabci
+#(ia(1)-ia(2))*0.08#PhaseBC 200V/div
+#uxacai
+#(ia(2)-ia(0))*0.08#PhaseCA 200V/div
+#напряжение питания обратной звезды (Y) и группы выпрямителей фазы B для всех схем A/B/C = 3/4/5
+#uybabi
+#(ia(3)-ia(4))*0.08#PhaseAB 200V/div
+#uybbci
+#(ia(4)-ia(5))*0.08#PhaseBC 200V/div
+#uybcai
+#(ia(5)-ia(3))*0.08#PhaseCA 200V/div
+#напряжение питания группы фазы С для схемы 1 А/В/С = 6/7/8 для остальных схем - дублирует СН
+#выходные напряжение  для схемы 0 и 2 А/В/С = 6/7/8
+#ucabi<= iap(6)- iap(7) when shem=1 else  iap(21)- iap(22);
+#uoabi<= iap(9) - iap(10) when shem=1 else  iap(6)- iap(7);
+#(ia(6)- ia(7))*0.16#PhaseAB 100V/div
+#ucbci<= iap(7)- iap(8) when shem=1 else  iap(22)- iap(23);
+#uobci<= iap(10)- iap(11) when shem=1 else  iap(7)- iap(8);
+#(ia(7)- ia(8))*0.16#PhaseBC 100V/div
+#uccai<= iap(8)- iap(6) when shem=1 else  iap(23)- iap(21);
+#uocai<= iap(11)- iap(9)  when shem=1 else  iap(8)- iap(6);
+#(ia(8)- ia(6))*0.16#PhaseCA 100V/div
+#токи прямой звезды (Х) и группы выпрямителей фазы А для схем 0  A/B/C = 34/33/32 для 1 сх 32/33/-(32+33) для второй сх.32/33/34
+#ixaai<=  iap(34) when shem=0 else  iap(32);
+#ia(34)*1.0#PhaseA 160A/div
+#ixabi<=  iap(33) when shem=0 else  iap(33);
+#ia(33)*1.0#PhaseB 160A/div
+#ixaci<=  iap(32) when shem=0 else (conv_std_logic_vector(0,16) - iap(32) - iap(33)) when shem=1 else  iap(34);
+#ia(32)*1.0#PhaseC 160A/div
+#токи обратной звезды (Y) и группы выпрямителей фазы B для схем 0  A/B/C = 37/36/35 для сх1. 34/35/-(34+35) для сх 2 35/36/37
+#iybai<= iap(37) when shem=0 else  iap(34) when shem=1 else  iap(35);
+#ia(37)*1.0#PhaseA 160A/div
+#iybbi<= iap(36) when shem=0 else  iap(35) when shem=1 else  iap(36);
+#ia(36)*1.0#PhaseB 160A/div
+#iybci<= iap(35) when shem=0 else (conv_std_logic_vector(0,16) - iap(34) - iap(35)) when shem=1 else  iap(37);
+#ia(35)*1.0#PhaseC 160A/div
+#токи группы выпрямителей фазы C для схем 0  и 2 = 0  для схемы 1  A/B/C =  36/37/-(36+37)
+#фазаА-выхода
+#--------------(0)прямая звезда-плюс----------полный-мост_Аплюс_плюс-------------- ---то же самое что (0)
+#uvs_a_plus(1)<=iap(0)-iap(9)    when shem = 0 else iap(0) - iap(14) when shem = 1 else iap(0)-iap(9);--+
+(ia[0]-ia[9])*0.08#uvs_a_plus(1) 200V/div
+#uvs_a_plus(3)<=iap(1)-iap(9)    when shem = 0 else iap(1) - iap(14) when shem = 1 else iap(1)-iap(9);--+
+(ia(1)-ia(9))*0.08#uvs_a_plus(3) 200V/div
+#uvs_a_plus(5)<=iap(2)-iap(9)    when shem = 0 else iap(2) - iap(14) when shem = 1 else iap(2)-iap(9);--+
+(ia(2)-ia(9))*0.08#uvs_a_plus(5) 200V/div
+#Напряжение на уравнительном реакторе прямой звезды
+(ia(9)-ia(10))*1.6 10V/div
+#--------------(0)обратная звезда-плюс--------полный-мост_Аплюс_минус----------отодельные+-для обратной звезды можно не использовать тк они замкнуты по силе
+#uvs_a_plus(4)<=iap(3)-iap(15)   when shem = 0 else iap(12) - iap(0) when shem = 1 else iap(3)-iap(10);--+
+#(ia(3)-ia(15))*0.08#uvs_a_plus(4) 200V/div
+#uvs_a_plus(6)<=iap(4)-iap(15)   when shem = 0 else iap(12) - iap(1) when shem = 1 else iap(4)-iap(10);--+
+#(ia(4)-ia(15))*0.08#uvs_a_plus(6) 200V/div
+#uvs_a_plus(2)<=iap(5)-iap(15)   when shem = 0 else iap(12) - iap(2) when shem = 1 else iap(5)-iap(10);--+
+#(ia(5)-ia(15))*0.08#uvs_a_plus(2) 200V/div
+#Напряжение на уравнительном реакторе обратной звезды
+#(ia(15)-ia(16))*1.6 10V/div
+#---------------(0)обратная звезда-минус------полный-мост_Аминус-плюс----------отодельные+-для обратной звезды можно не использовать тк они замкнуты по силе
+#uvs_a_minus(1)<=iap(16)-iap(3)  when shem = 0 else iap(0) - iap(13) when shem = 1 else iap(9)-iap(3);--+
+#(ia(16)-ia(3))*0.08#uvs_a_minus(1) 200V/div
+#uvs_a_minus(3)<=iap(16)-iap(4)  when shem = 0 else iap(1) - iap(13) when shem = 1 else iap(9)-iap(4);--+
+#(ia(16)-ia(4))*0.08#uvs_a_minus(3) 200V/div
+#uvs_a_minus(5)<=iap(16)-iap(5)  when shem = 0 else iap(2) - iap(13) when shem = 1 else iap(9)-iap(5);--+
+#(ia(16)-ia(5))*0.08#uvs_a_minus(5) 200V/div
+#---------------(0)прямая звезда-минус--------полный-мост_Аминус-минус---------- ---то же самое что (0)
+#uvs_a_minus(4)<=iap(10)-iap(0)  when shem = 0 else iap(15) - iap(0) when shem = 1 else iap(10)-iap(0);--+
+#(ia(10)-ia(0))*0.08#uvs_a_minus(4) 200V/div
+#uvs_a_minus(6)<=iap(10)-iap(1)  when shem = 0 else iap(15) - iap(1) when shem = 1 else iap(10)-iap(1);--+
+#(ia(10)-ia(1))*0.08#uvs_a_minus(6) 200V/div
+#uvs_a_minus(2)<=iap(10)-iap(2)  when shem = 0 else iap(15) - iap(2) when shem = 1 else iap(10)-iap(2);--+
+#(ia(10)-ia(2))*0.08#uvs_a_minus(2) 200V/div
+#--***********************************************************************************************************
+#--фазаB-выхода
+#--------------(0)прямая звезда-плюс----------полный-мост_Bплюс_плюс-------------- ---то же самое что (0)
+#uvs_b_plus(1)<=iap(0)-iap(11)   when shem = 0 else iap(3) - iap(16) when shem = 1 else iap(0)-iap(11);--+
+#(ia(0)-ia(11))*0.08#uvs_b_plus(1) 200V/div
+#uvs_b_plus(3)<=iap(1)-iap(11)   when shem = 0 else iap(4) - iap(16) when shem = 1 else iap(1)-iap(11);--+
+#(ia(1)-ia(11))*0.08#uvs_b_plus(3) 200V/div
+#uvs_b_plus(5)<=iap(2)-iap(11)   when shem = 0 else iap(5) - iap(16) when shem = 1 else iap(2)-iap(11);--+
+#(ia(2)-ia(11))*0.08#uvs_b_plus(5) 200V/div
+#Напряжение на уравнительном реакторе прямой звезды
+#(ia(11)-ia(12))*1.6 10V/div
+#--------------(0)обратная звезда-плюс--------полный-мост_Bплюс_минус----------отодельные+-для обратной звезды можно не использовать тк они замкнуты по силе
+#uvs_b_plus(4)<=iap(3)-iap(17)   when shem = 0 else iap(12) - iap(3) when shem = 1 else iap(3)-iap(12);--+
+#(ia(3)-ia(17))*0.08#uvs_b_plus(4) 200V/div
+#uvs_b_plus(6)<=iap(4)-iap(17)   when shem = 0 else iap(12) - iap(4) when shem = 1 else iap(4)-iap(12);--+
+#(ia(4)-ia(17))*0.08#uvs_b_plus(6) 200V/div
+#uvs_b_plus(2)<=iap(5)-iap(17)   when shem = 0 else iap(12) - iap(5) when shem = 1 else iap(5)-iap(12);--+
+#(ia(5)-ia(17))*0.08#uvs_b_plus(2) 200V/div
+#Напряжение на уравнительном реакторе обратной звезды
+#(ia(17)-ia(18))*1.6 10V/div
+#---------------(0)обратная звезда-минус------полный-мост_Bминус-плюс----------отодельные+-для обратной звезды можно не использовать тк они замкнуты по силе
+#uvs_b_minus(1)<=iap(18)-iap(3)  when shem = 0 else iap(3) - iap(13) when shem = 1 else iap(11)-iap(3);--+
+#(ia(18)-ia(3))*0.08#uvs_b_minus(1) 200V/div
+#uvs_b_minus(3)<=iap(18)-iap(4)  when shem = 0 else iap(4) - iap(13) when shem = 1 else iap(11)-iap(4);--+
+#(ia(18)-ia(4))*0.08#uvs_b_minus(3) 200V/div
+#uvs_b_minus(5)<=iap(18)-iap(5)  when shem = 0 else iap(5) - iap(13) when shem = 1 else iap(11)-iap(5);--+
+#(ia(18)-ia(5))*0.08#uvs_b_minus(5) 200V/div
+#---------------(0)прямая звезда-минус--------полный-мост_Bминус-минус---------- ---то же самое что (0)
+#uvs_b_minus(4)<=iap(12)-iap(0)  when shem = 0 else iap(17) - iap(3) when shem = 1 else iap(12)-iap(0);--+
+#(ia(12)-ia(0))*0.08#uvs_b_minus(4) 200V/div
+#uvs_b_minus(6)<=iap(12)-iap(1)  when shem = 0 else iap(17) - iap(4) when shem = 1 else iap(12)-iap(1);--+
+#(ia(12)-ia(1))*0.08#uvs_b_minus(6) 200V/div
+#uvs_b_minus(2)<=iap(12)-iap(2)  when shem = 0 else iap(17) - iap(5) when shem = 1 else iap(12)-iap(2);--+
+#(ia(12)-ia(2))*0.08#uvs_b_minus(2) 200V/div
+#--фазаC-выхода
+#--------------(0)прямая звезда-плюс----------полный-мост_Bплюс_плюс-------------- ---то же самое что (0)
+#uvs_c_plus(1)<=iap(0)-iap(13)   when shem = 0 else iap(6) - iap(18) when shem = 1 else iap(0)-iap(13);--+
+#(ia(0)-ia(13))*0.08#uvs_c_plus(1) 200V/div
+#uvs_c_plus(3)<=iap(1)-iap(13)   when shem = 0 else iap(7) - iap(18) when shem = 1 else iap(1)-iap(13);--+
+#(ia(1)-ia(13))*0.08#uvs_c_plus(3) 200V/div
+#uvs_c_plus(5)<=iap(2)-iap(13)   when shem = 0 else iap(8) - iap(18) when shem = 1 else iap(2)-iap(13);--+
+#(ia(2)-ia(13))*0.08#uvs_c_plus(5) 200V/div
+#Напряжение на уравнительном реакторе прямой звезды
+#(ia(13)-ia(14))*1.6 10V/div
+#--------------(0)обратная звезда-плюс--------полный-мост_Bплюс_минус----------отодельные+-для обратной звезды можно не использовать тк они замкнуты по силе
+#uvs_c_plus(4)<=iap(3)-iap(19)   when shem = 0 else iap(12) - iap(6) when shem = 1 else iap(3)-iap(14);--+
+#(ia(3)-ia(19))*0.08#uvs_c_plus(4) 200V/div
+#uvs_c_plus(6)<=iap(4)-iap(19)   when shem = 0 else iap(12) - iap(7) when shem = 1 else iap(4)-iap(14);--+
+#(ia(4)-ia(19))*0.08#uvs_c_plus(6) 200V/div
+#uvs_c_plus(2)<=iap(5)-iap(19)   when shem = 0 else iap(12) - iap(8) when shem = 1 else iap(5)-iap(14);--+
+#(ia(5)-ia(19))*0.08#uvs_c_plus(2) 200V/div
+#Напряжение на уравнительном реакторе обратной звезды
+#(ia(19)-ia(20))*1.6 10V/div
+#---------------(0)обратная звезда-минус------полный-мост_Bминус-плюс----------отодельные+-для обратной звезды можно не использовать тк они замкнуты по силе
+#uvs_c_minus(1)<=iap(20)-iap(3)  when shem = 0 else iap(6) - iap(13) when shem = 1 else iap(13)-iap(3);--+
+#(ia(20)-ia(3))*0.08#uvs_c_minus(1) 200V/div
+#uvs_c_minus(3)<=iap(20)-iap(4)  when shem = 0 else iap(7) - iap(13) when shem = 1 else iap(13)-iap(4);--+
+#(ia(20)-ia(4))*0.08#uvs_c_minus(3) 200V/div
+#uvs_c_minus(5)<=iap(20)-iap(5)  when shem = 0 else iap(8) - iap(13) when shem = 1 else iap(13)-iap(5);--+
+#(ia(20)-ia(5))*0.08#uvs_c_minus(5) 200V/div
+#---------------(0)прямая звезда-минус--------полный-мост_Bминус-минус---------- ---то же самое что (0)
+#uvs_c_minus(4)<=iap(14)-iap(0)  when shem = 0 else iap(19) - iap(6) when shem = 1 else iap(14)-iap(0);--+
+#(ia(14)-ia(0))*0.08#uvs_c_minus(4) 200V/div
+#uvs_c_minus(6)<=iap(14)-iap(1)  when shem = 0 else iap(19) - iap(7) when shem = 1 else iap(14)-iap(1);--+
+#(ia(14)-ia(1))*0.08#uvs_c_minus(6) 200V/div
+#uvs_c_minus(2)<=iap(14)-iap(2)  when shem = 0 else iap(19) - iap(8) when shem = 1 else iap(14)-iap(2);--+
+#(ia(14)-ia(2))*0.08#uvs_c_minus(2) 200V/div
+#
+#питание СУ 24.0В 10в/клет
+#ia(24)*1.6#VCC24V 10V/div
+#питание стабилизатора 12.00В 5В/клет
+#ia(25)*0.32#VCC12V 5V/div
+#питание стабилизатора 5.00В 5В/клет
+#ia(26)*0.32#VCC5V 5V/div
+#напряжение датчика КЗ ключа 1.00 1в/клет
+#ia(27)*1.6#VGATE 1V/div
+#питание СУ 350.0В 100в/клет
+#ia(28)*0.16#VCC350V 100V/div
+#питание ВУФ 10в/клет
+#ia(29)*1.6#VCCGATE 10V/div
+#датчик тока ключей
+#ia(30)*16#IGATE 10p/div
+#питание стабилизатора 3.30В 1В/клет
+#ia(31)*1.6#VCC3V3 1V/div
+#задание 0-10.000 1 1В/клет
+#ia(38)*0.032#Z1 5V/div
+#задание 0-10.000 2 1В/клет
+#ia(39)*0.032#Z2 5V/div
+#
+#выходной ток
+#ai(0)*1.0#PhaseA 160A/div
+#ai(1)*1.0#PhaseB 160A/div
+#ai(2)*1.0#PhaseC 160A/div
+#задания4-20ма
+#ai(3)*0.016#Z4_20 1 2.5ma/div
+#ai(4)*0.016#Z4_20 2 2.5ma/div
+#
+#do_gates(0)<= gate_a_plus(4) when shem = 1 else gate_a_plus(1);
+#do_gates(1)<= gate_a_plus(1) when shem = 1 else gate_a_plus(3);
+#do_gates(2)<= gate_a_plus(6) when shem = 1 else gate_a_plus(5);
+#
+#do_gates(3)<= gate_a_plus(3) when shem = 1 else gate_a_minus(4);
+#do_gates(4)<= gate_a_plus(2) when shem = 1 else gate_a_minus(6);
+#do_gates(5)<= gate_a_plus(5) when shem = 1 else gate_a_minus(2);
+#
+#do_gates(18)<=gate_a_minus(4) when shem = 1 else gate_a_plus(4);
+#do_gates(19)<=gate_a_minus(1) when shem = 1 else gate_a_plus(6);
+#do_gates(20)<=gate_a_minus(6) when shem = 1 else gate_a_plus(2);
+#
+#do_gates(21)<=gate_a_minus(3) when shem = 1 else gate_a_minus(1);
+#do_gates(22)<=gate_a_minus(2) when shem = 1 else gate_a_minus(3);
+#do_gates(23)<=gate_a_minus(5) when shem = 1 else gate_a_minus(5);
+
+gb[0]#gate_a_plus(1)#shem=0
+gb[20]#gate_a_plus(2)#shem=0
+gb[1]#gate_a_plus(3)#shem=0
+gb[18]#gate_a_plus(4)#shem=0
+gb[2]#gate_a_plus(5)#shem=0
+gb[19]#gate_a_plus(6)#shem=0
+
+#gb[21]#gate_a_minus(1)#shem=0
+#gb[5]#gate_a_minus(2)#shem=0
+#gb[22]#gate_a_minus(3)#shem=0
+#gb[3]#gate_a_minus(4)#shem=0
+#gb[23]#gate_a_minus(5)#shem=0
+#gb[4]#gate_a_minus(6)#shem=0
+
+#gb[6]#gate_b_plus(1)#shem=0
+#gb[26]#gate_b_plus(2)#shem=0
+#gb[7]#gate_b_plus(3)#shem=0
+#gb[24]#gate_b_plus(4)#shem=0
+#gb[8]#gate_b_plus(5)#shem=0
+#gb[25]#gate_b_plus(6)#shem=0
+
+#gb[27]#gate_b_minus(1)#shem=0
+#gb[11]#gate_b_minus(2)#shem=0
+#gb[28]#gate_b_minus(3)#shem=0
+#gb[9]#gate_b_minus(4)#shem=0
+#gb[29]#gate_b_minus(5)#shem=0
+#gb[10]#gate_b_minus(6)#shem=0
+
+#gb[12]#gate_c_plus(1)#shem=0
+#gb[32]#gate_c_plus(2)#shem=0
+#gb[13]#gate_c_plus(3)#shem=0
+#gb[30]#gate_c_plus(4)#shem=0
+#gb[14]#gate_c_plus(5)#shem=0
+#gb[31]#gate_c_plus(6)#shem=0
+
+#gb[33]#gate_c_minus(1)#shem=0
+#gb[17]#gate_c_minus(2)#shem=0
+#gb[34]#gate_c_minus(3)#shem=0
+#gb[15]#gate_c_minus(4)#shem=0
+#gb[35]#gate_c_minus(5)#shem=0
+#gb[16]#gate_c_minus(6)#shem=0
+#
+#gb[36]#da_plus
+#gb[37]#da_minus
+#gb[38]#db_plus
+#gb[39]#db_minus
+#gb[40]#dc_plus
+#gb[41]#dc_minus
+#
+#gb[44]#en_a_plus
+#gb[45]#en_a_minus
+#gb[46]#en_b_plus
+#gb[47]#en_b_minus
+#
+#gb[42]#wrk
+#gb[43]#err
+}

@@ -1,0 +1,7 @@
+#!/bin/sh
+for i in /media/cvy7/wrk/projects/20230116_npch/logs/*.bin
+do
+  echo "Working on $i file..."
+  ./blackbox3 -f $i -o testosc
+done
+

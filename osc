@@ -1,0 +1,3 @@
+#!/bin/sh
+./blackbox3 -fosc /media/cvy7/wrk/projects/20230116_npch/logs/osc/fpga_ram.bin -o testosc
+#./blackbox3 -fosc fpga_ram.bin -o testosc
