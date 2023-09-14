@@ -1,5 +1,5 @@
 /****************************************************************************
- *   Copyright (C) 2010-2014 by cvy7                                        *
+ *   Copyright (C) 2010-2024 by cvy7                                        *
  *                                                                          *
  *   This program is free software; you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -22,8 +22,8 @@
 #include <time.h>
 #include <errno.h>
 #include <signal.h>
-#include <sys/times.h>
-#include <sys/ioctl.h>
+//#include <sys/times.h>
+//#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "conv_npch.h"
